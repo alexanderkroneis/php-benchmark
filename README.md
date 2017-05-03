@@ -22,8 +22,8 @@ echo $forBenchmark->compare($whileBenchmark);
 
 ``` php
 <?php
-Benchmark::begin();
+$benchmark = Benchmark::begin();
 // do some stuff
-$benchmark = Benchmark::stop();
+$benchmark->stop();
 echo $benchmark;
 ```
