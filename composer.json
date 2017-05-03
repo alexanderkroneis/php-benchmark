@@ -1,7 +1,7 @@
 {
   "name": "alexgaal/php-benchmark",
   "description": "A simple PHP Benchmark class",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
     {
