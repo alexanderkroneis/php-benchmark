@@ -3,10 +3,11 @@
   "description": "A simple PHP Benchmark class",
   "minimum-stability": "dev",
   "license": "MIT",
-  "authors": [
-    {
-      "name": "Alexander Gaal",
-      "email": "alexander.gaal@live.at"
-    }
-  ]
+  "authors": {
+    "name": "Alexander Gaal",
+    "email": "alexander.gaal@live.at"
+  },
+  "require": {
+    "php": ">=7.0"
+  }
 }
