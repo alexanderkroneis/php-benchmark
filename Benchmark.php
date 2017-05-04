@@ -96,8 +96,8 @@ class Benchmark
 
             $time = $time + (microtime(true) - $timeLoop);
 
-            $memory['usage'] += ($memoryLoop['usage'] - memory_get_usage());
-            $memory['peak']  += ($memoryLoop['peak']  - memory_get_peak_usage());
+            $memory['usage'] += (memory_get_usage()      - $memoryLoop['usage']);
+            $memory['peak']  += (memory_get_peak_usage() - $memoryLoop['peak']);
 
             $benchmark->loops[] = [
                 'memory' => $memory,
