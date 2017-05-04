@@ -1,6 +1,39 @@
 <?php
 namespace Alexgaal\Benchmark;
 
+/**
+ * Copyright (c) 2017 <copyright holders>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+ * the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * @author  Alexander Gaal
+ * @license MIT
+ * @version 1
+ * @package Alexgaal\Benchmark
+ *
+ * @example
+ * $usingFunctionBenchmark = Benchmark::time(function () {
+ *     pow(2, 2);
+ * }, 10000, true);
+ *
+ * $multiplyBenchmark = Benchmark::time(function () {
+ *     2 * 2;
+ * }, 10000, true);
+ *
+ * echo $usingFunctionBenchmark->compare($multiplyBenchmark);
+ */
 class Benchmark
 {
     /**
@@ -9,35 +42,25 @@ class Benchmark
     const PRECISION = 6;
 
     /**
-     * @var float
-     */
-    protected $start;
-
-    /**
+     * Store the difference between start and end as float in seconds.
+     *
      * @var float
      */
     protected $difference;
 
     /**
+     * Stores information about memory usage while benchmarking.
+     *
      * @var array
      */
     protected $memory = [];
 
     /**
+     * Stores information about loops while benchmarking.
+     *
      * @var array
      */
     protected $loops = [];
-
-    /**
-     * @return Benchmark
-     */
-    public static function begin()
-    {
-        $benchmark = new Benchmark();
-        $benchmark->start();
-
-        return $benchmark;
-    }
 
     /**
      * Measures the running time and used memory of an callback function.
@@ -63,19 +86,18 @@ class Benchmark
 
         for ($i = 0; $i < $loops; $i++)
         {
-            $timeLoop = microtime(true);
-
             $memoryLoop = [
                 'usage' => memory_get_usage(),
                 'peak'  => memory_get_peak_usage()
             ];
+            $timeLoop = microtime(true);
 
             $callback();
 
-            $memory['usage'] += $memoryLoop['usage'];
-            $memory['peak']  += $memoryLoop['peak'];
-
             $time = $time + (microtime(true) - $timeLoop);
+
+            $memory['usage'] += ($memoryLoop['usage'] - memory_get_usage());
+            $memory['peak']  += ($memoryLoop['peak']  - memory_get_peak_usage());
 
             $benchmark->loops[] = [
                 'memory' => $memory,
@@ -83,44 +105,16 @@ class Benchmark
             ];
         }
 
-        if ($avg) {
-            $benchmark->difference = $time / $loops;
-            $benchmark->memory = [
-                'usage' => $memory['usage'] / $loops,
-                'peak'  => $memory['peak']  / $loops
-            ];
-        } else {
-            $benchmark->difference = $time / $loops;
-            $benchmark->memory = [
-                'usage' => $memory['usage'] / $loops,
-                'peak'  => $memory['peak']  / $loops
-            ];
-        }
+        $benchmark->difference      = !!$avg ? $time / $loops : $time;
+        $benchmark->memory['usage'] = !!$avg ? $memory['usage'] / $loops : $memory['usage'];
+        $benchmark->memory['peak']  = !!$avg ? $memory['peak']  / $loops : $memory['peak'];
 
         return $benchmark;
     }
 
     /**
-     * @return Benchmark
-     */
-    protected function start()
-    {
-        $this->start = microtime(true);
-
-        return $this;
-    }
-
-    /**
-     * @return Benchmark
-     */
-    protected function stop()
-    {
-        $this->difference = microtime(true) - $this->start;
-
-        return $this;
-    }
-
-    /**
+     * Returns the difference from start until end of benchmark in seconds as float.
+     *
      * @return float
      */
     protected function getDifference()
@@ -129,6 +123,8 @@ class Benchmark
     }
 
     /**
+     * Returns microseconds of benchmark.
+     *
      * @return float
      */
     public function getMicros()
@@ -137,6 +133,8 @@ class Benchmark
     }
 
     /**
+     * Returns milliseconds of benchmark.
+     *
      * @return float
      */
     public function getMillis()
@@ -145,6 +143,8 @@ class Benchmark
     }
 
     /**
+     * Returns seconds of benchmark.
+     *
      * @return float
      */
     public function getSeconds()
@@ -153,6 +153,8 @@ class Benchmark
     }
 
     /**
+     * Returns minutes of benchmark.
+     *
      * @return float
      */
     public function getMinutes()
@@ -161,6 +163,8 @@ class Benchmark
     }
 
     /**
+     * Compares this benchmark with another given benchmark.
+     *
      * @param Benchmark $benchmark
      *
      * @return BenchmarkComparison
@@ -170,6 +174,9 @@ class Benchmark
         return new BenchmarkComparison([$this, $benchmark]);
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return '<pre>' . print_r($this, true) . '</pre>';
