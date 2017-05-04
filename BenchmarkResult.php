@@ -1,19 +1,28 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Alexander Gaal
- * Date: 04.05.2017
- * Time: 15:32
- */
-
 namespace Alexgaal\Benchmark;
 
-
+/**
+ * Class BenchmarkResult
+ * @package Alexgaal\Benchmark
+ */
 class BenchmarkResult
 {
+    /**
+     * @var array
+     */
     protected $memory = [];
+
+    /**
+     * @var float
+     */
     protected $time   = 0;
 
+    /**
+     * BenchmarkResult constructor.
+     *
+     * @param array $memory
+     * @param float $time
+     */
     function __construct($memory = null, $time = null)
     {
         if (null !== $memory)

@@ -47,6 +47,11 @@ class Benchmark
     protected $startTime = 0;
 
     /**
+     * @var float
+     */
+    protected $difference = 0;
+
+    /**
      * @var array
      */
     protected $memory = [];
@@ -227,6 +232,11 @@ class Benchmark
     public function getMinutes()
     {
         return $this->getDifference() / 60;
+    }
+
+    public function getMemory()
+    {
+        return $this->memory;
     }
 
     /**
