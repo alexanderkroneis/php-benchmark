@@ -2,6 +2,7 @@
 A simple PHP Benchmark class.
 
 ## Example usage
+### Benchmark a function
 ``` php
 <?php
 $forBenchmark = Benchmark::time(function () {
@@ -19,6 +20,40 @@ $whileBenchmark = Benchmark::time(function () {
 
 echo $forBenchmark->compare($whileBenchmark);
 ```
+
+### Benchmark a block of code
+``` php
+<?php
+$forBenchmark = Benchmark::begin();
+for ($i = 0; $i < 100; $i++) {
+    //
+}
+$forBenchmark->stop();
+
+$whileBenchmark = Benchmark::begin();
+$i = 0;
+while ($i < 100) {
+    $i++;
+}
+$whileBenchmark->stop();
+
+echo $forBenchmark->compare($whileBenchmark);
+```
+
+### Nested benchmarks
+``` php
+<?php
+$calculateBenchmark = Benchmark::begin();
+for ($i = 0; $i < 1000; $i++) {
+    pow($i, $i);
+}
+
+$databaseBenchmark = Benchmark::begin();
+// do some random database stuff
+$databaseBenchmark->stop();
+$calculateBenchmark->stop();
+```
+
 
 ## Function signature
 ```

@@ -42,15 +42,11 @@ class Benchmark
     const PRECISION = 6;
 
     /**
-     * Store the difference between start and end as float in seconds.
-     *
      * @var float
      */
-    protected $difference;
+    protected $startTime = 0;
 
     /**
-     * Stores information about memory usage while benchmarking.
-     *
      * @var array
      */
     protected $memory = [];
@@ -58,58 +54,129 @@ class Benchmark
     /**
      * Stores information about loops while benchmarking.
      *
-     * @var array
+     * @var BenchmarkResult[]
      */
-    protected $loops = [];
+    protected $results = [];
+
+    /**
+     * @return Benchmark
+     */
+    public static function begin()
+    {
+        $benchmark = new Benchmark();
+        $benchmark->startTime = microtime(true);
+        $benchmark->memory    = [
+            'usage' => memory_get_usage(),
+            'peak'  => memory_get_peak_usage()
+        ];
+
+        return $benchmark;
+    }
+
+    /**
+     * @return Benchmark
+     */
+    public function stop()
+    {
+        $benchmarkResult = new BenchmarkResult();
+        $benchmarkResult->setTime(microtime(true) - $this->startTime);
+        $benchmarkResult->setMemory([
+            'usage' => memory_get_usage()      - $this->memory['usage'],
+            'peak'  => memory_get_peak_usage() - $this->memory['peak']
+        ]);
+
+        $this->results[] = $benchmarkResult;
+
+        return $this;
+    }
+
 
     /**
      * Measures the running time and used memory of an callback function.
      *
-     * @param      $callback
-     * @param int  $iterations
-     * @param bool $avg
+     * @param       $callback
+     * @param array $params
+     * @param int   $iterations
+     * @param bool  $avg
      *
      * @return Benchmark
      */
-    public static function time(\Closure $callback, $iterations = 1, $avg = false)
+    public static function time($callback, $params = [], $iterations = 1, $avg = false)
     {
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . ' requires argument $callback to be callable.');
         }
 
         $benchmark = new Benchmark();
-        $time = 0;
-        $memory = [
+
+        for ($i = 0; $i < $iterations; $i++)
+        {
+            $benchmarkResult = new BenchmarkResult();
+
+            $memoryLoopStart = [
+                'usage' => memory_get_usage(),
+                'peak'  => memory_get_peak_usage()
+            ];
+            $timeStart = microtime(true);
+
+            call_user_func($callback, $params);
+
+            $benchmarkResult->setTime(microtime(true) - $timeStart);
+            $benchmarkResult->setMemory([
+                'usage' => memory_get_usage()      - $memoryLoopStart['usage'],
+                'peak'  => memory_get_peak_usage() - $memoryLoopStart['peak']
+            ]);
+
+            $benchmark->results[] = $benchmarkResult;
+        }
+
+        $benchmark->difference($avg);
+        $benchmark->memory($avg);
+
+        return $benchmark;
+    }
+
+    /**
+     * @param bool $avg
+     */
+    protected function difference($avg = false)
+    {
+        $this->difference = 0;
+
+        foreach ($this->results as $result)
+        {
+            $this->difference += $result->getTime();
+        }
+
+        if ($avg)
+        {
+            $this->difference /= count($this->results);
+        }
+    }
+
+    /**
+     * @param bool $avg
+     */
+    protected function memory($avg = false)
+    {
+        $this->memory = [
             'usage' => 0,
             'peak'  => 0
         ];
 
-        for ($i = 0; $i < $iterations; $i++)
+        foreach ($this->results as $result)
         {
-            $memoryLoop = [
-                'usage' => memory_get_usage(),
-                'peak'  => memory_get_peak_usage()
-            ];
-            $timeLoop = microtime(true);
+            $resultMemory = $result->getMemory();
 
-            $callback();
-
-            $time = $time + (microtime(true) - $timeLoop);
-
-            $memory['usage'] += (memory_get_usage()      - $memoryLoop['usage']);
-            $memory['peak']  += (memory_get_peak_usage() - $memoryLoop['peak']);
-
-            $benchmark->loops[] = [
-                'memory' => $memory,
-                'time'   => microtime(true) - $timeLoop
-            ];
+            $this->memory['usage'] += $resultMemory['usage'];
+            $this->memory['peak']  += $resultMemory['peak'];
         }
 
-        $benchmark->difference      = !!$avg ? $time / $iterations : $time;
-        $benchmark->memory['usage'] = !!$avg ? $memory['usage'] / $iterations : $memory['usage'];
-        $benchmark->memory['peak']  = !!$avg ? $memory['peak']  / $iterations : $memory['peak'];
-
-        return $benchmark;
+        if ($avg)
+        {
+            $this->memory['usage'] /= count($this->results);
+            $this->memory['peak']  /= count($this->results);
+        }
     }
 
     /**
