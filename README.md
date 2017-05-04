@@ -22,8 +22,8 @@ echo $forBenchmark->compare($whileBenchmark);
 
 ## Function signature
 ```
-$callback           A function which will be called in Benchmark::time() function.
-$iterations int     Number of iterations of function call.
-$avg        bool    Returns average values of memory and time if true, otherwise will return accumulated values.
-Benchmark::time($callback, int $iterations, bool $avg)
+$callback    Closure  A function which will be called in Benchmark::time() function.
+$iterations  int      Number of iterations of function call.
+$avg         bool     Returns average values of memory and time if true, otherwise will return accumulated values.
+Benchmark::time(\Closure $callback, int $iterations, bool $avg)
 ```

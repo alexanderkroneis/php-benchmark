@@ -71,7 +71,7 @@ class Benchmark
      *
      * @return Benchmark
      */
-    public static function time($callback, $iterations = 1, $avg = false)
+    public static function time(\Closure $callback, $iterations = 1, $avg = false)
     {
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . ' requires argument $callback to be callable.');
