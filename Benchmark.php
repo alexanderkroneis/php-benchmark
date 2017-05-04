@@ -24,6 +24,11 @@ class Benchmark
     protected $memory = [];
 
     /**
+     * @var array
+     */
+    protected $loops = [];
+
+    /**
      * @return Benchmark
      */
     public static function begin()
@@ -70,6 +75,11 @@ class Benchmark
             $memory['peak']  += $memoryLoop['peak'];
 
             $time = $time + (microtime(true) - $timeLoop);
+
+            $benchmark->loops[] = [
+                'memory' => $memory,
+                'time'   => $time
+            ];
         }
 
         if ($avg) {
