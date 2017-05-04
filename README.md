@@ -20,10 +20,10 @@ $whileBenchmark = Benchmark::time(function () {
 echo $forBenchmark->compare($whileBenchmark);
 ```
 
-``` php
-<?php
-$benchmark = Benchmark::begin();
-// do some stuff
-$benchmark->stop();
-echo $benchmark;
+## Function signature
+```
+$callback           A function which will be called in Benchmark::time() function.
+$iterations int     Number of iterations of function call.
+$avg        bool    Returns average values of memory and time if true, otherwise will return accumulated values.
+Benchmark::time($callback, int $iterations, bool $avg)
 ```

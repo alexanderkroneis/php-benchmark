@@ -66,12 +66,12 @@ class Benchmark
      * Measures the running time and used memory of an callback function.
      *
      * @param      $callback
-     * @param int  $loops
+     * @param int  $iterations
      * @param bool $avg
      *
      * @return Benchmark
      */
-    public static function time($callback, $loops = 1, $avg = false)
+    public static function time($callback, $iterations = 1, $avg = false)
     {
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . ' requires argument $callback to be callable.');
@@ -84,7 +84,7 @@ class Benchmark
             'peak'  => 0
         ];
 
-        for ($i = 0; $i < $loops; $i++)
+        for ($i = 0; $i < $iterations; $i++)
         {
             $memoryLoop = [
                 'usage' => memory_get_usage(),
@@ -105,9 +105,9 @@ class Benchmark
             ];
         }
 
-        $benchmark->difference      = !!$avg ? $time / $loops : $time;
-        $benchmark->memory['usage'] = !!$avg ? $memory['usage'] / $loops : $memory['usage'];
-        $benchmark->memory['peak']  = !!$avg ? $memory['peak']  / $loops : $memory['peak'];
+        $benchmark->difference      = !!$avg ? $time / $iterations : $time;
+        $benchmark->memory['usage'] = !!$avg ? $memory['usage'] / $iterations : $memory['usage'];
+        $benchmark->memory['peak']  = !!$avg ? $memory['peak']  / $iterations : $memory['peak'];
 
         return $benchmark;
     }
