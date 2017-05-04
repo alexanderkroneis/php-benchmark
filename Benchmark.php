@@ -40,6 +40,8 @@ class Benchmark
     }
 
     /**
+     * Measures the running time and used memory of an callback function.
+     *
      * @param      $callback
      * @param int  $loops
      * @param bool $avg
@@ -48,12 +50,11 @@ class Benchmark
      */
     public static function time($callback, $loops = 1, $avg = false)
     {
-        $benchmark = new Benchmark();
-
         if (!is_callable($callback)) {
             throw new \InvalidArgumentException(__CLASS__ . '::' . __FUNCTION__ . ' requires argument $callback to be callable.');
         }
 
+        $benchmark = new Benchmark();
         $time = 0;
         $memory = [
             'usage' => 0,
@@ -78,7 +79,7 @@ class Benchmark
 
             $benchmark->loops[] = [
                 'memory' => $memory,
-                'time'   => $time
+                'time'   => microtime(true) - $timeLoop
             ];
         }
 
