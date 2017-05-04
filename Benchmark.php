@@ -50,16 +50,41 @@ class Benchmark
         }
 
         $time = 0;
+        $memory = [
+            'usage' => 0,
+            'peak'  => 0
+        ];
 
         for ($i = 0; $i < $loops; $i++)
         {
-            $loopStart = microtime(true);
+            $timeLoop = microtime(true);
+
+            $memoryLoop = [
+                'usage' => memory_get_usage(),
+                'peak'  => memory_get_peak_usage()
+            ];
+
             $callback();
-            $time = $time + (microtime(true) - $loopStart);
+
+            $memory['usage'] += $memoryLoop['usage'];
+            $memory['peak']  += $memoryLoop['peak'];
+
+            $time = $time + (microtime(true) - $timeLoop);
         }
 
-        $benchmark->difference = !!$avg ? $time / $loops : $time;
-        $benchmark->memory();
+        if ($avg) {
+            $benchmark->difference = $time / $loops;
+            $benchmark->memory = [
+                'usage' => $memory['usage'] / $loops,
+                'peak'  => $memory['peak']  / $loops
+            ];
+        } else {
+            $benchmark->difference = $time / $loops;
+            $benchmark->memory = [
+                'usage' => $memory['usage'] / $loops,
+                'peak'  => $memory['peak']  / $loops
+            ];
+        }
 
         return $benchmark;
     }
@@ -80,21 +105,8 @@ class Benchmark
     protected function stop()
     {
         $this->difference = microtime(true) - $this->start;
-        
+
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    protected function memory()
-    {
-        $this->memory = [
-            'usage' => memory_get_usage(),
-            'peak'  => memory_get_peak_usage()
-        ];
-
-        return $this->memory;
     }
 
     /**
