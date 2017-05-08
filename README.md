@@ -2,63 +2,39 @@
 A simple PHP Benchmark class.
 
 ## Example usage
-### Benchmark a function
+### Functions
 ``` php
-<?php
-$forBenchmark = Benchmark::time(function () {
-    for ($i = 0; $i < 100; $i++) {
-        //
-    }
-});
+<?php 
 
-$whileBenchmark = Benchmark::time(function () {
-    $i = 0;
-    while ($i < 100) {
-        $i++;
-    }
-});
+$w1 = new Workbench(['param', 10], 1);
+$w2 = new Workbench(['param', 100], 333);
 
-echo $forBenchmark->compare($whileBenchmark);
+$b = new Benchmark(function($p1, $p2) {
+    return $p1 . (string) $p2 * 100;
+}, $w1, $w2;
+
+$r = $b->startTest()->getResult();
+
+var_dump(
+    $r->getBenchmarkResult(0)->getAverageTime(),
+    $r->getBenchmarkResult(1)->getAverageTime(),
+    $r->getAverageTime()
+);
 ```
-
-### Benchmark a block of code
+### Classes
 ``` php
-<?php
-$forBenchmark = Benchmark::begin();
-for ($i = 0; $i < 100; $i++) {
-    //
-}
-$forBenchmark->stop();
+<?php 
 
-$whileBenchmark = Benchmark::begin();
-$i = 0;
-while ($i < 100) {
-    $i++;
-}
-$whileBenchmark->stop();
+$w1 = new Workbench(['param', 10], 1);
+$w2 = new Workbench(['param', 100], 333);
 
-echo $forBenchmark->compare($whileBenchmark);
-```
+$b = new Benchmark(['MyClassName', 'myMethod'], $w1, $w2;
 
-### Nested benchmarks
-``` php
-<?php
-$calculateBenchmark = Benchmark::begin();
-for ($i = 0; $i < 1000; $i++) {
-    pow($i, $i);
-}
+$r = $b->startTest()->getResult();
 
-$databaseBenchmark = Benchmark::begin();
-// do some random database stuff
-$databaseBenchmark->stop();
-$calculateBenchmark->stop();
-```
-
-
-## Function signature
-```
-$callback    Closure  A function which will be called in Benchmark::time() function.
-$iterations  int      Number of iterations of function call.
-$avg         bool     Returns average values of memory and time if true, otherwise will return accumulated values.
-Benchmark::time(\Closure $callback, int $iterations, bool $avg)
+var_dump(
+    $r->getBenchmarkResult(0)->getAverageTime(),
+    $r->getBenchmarkResult(1)->getAverageTime(),
+    $r->getAverageTime()
+);
 ```
